@@ -1,0 +1,16 @@
+<h1><%= @keyword %></h1>
+<table border="1">
+  <tr>
+    <th>Thumbnail</th>
+    <th>Title</th>
+    <th>Social Rank</th>
+  </tr>
+  <% @recipes.each do |recipe| %>
+  <tr>
+    <td><%= link_to image_tag(recipe["image_url"], size: "100x100", alt: "Dish Picture"), recipe["f2f_url"] %></td>
+    <td><%= link_to sanitize(recipe["title"]), recipe["f2f_url"] %></td>
+    <td><%= recipe["social_rank"] %></td>
+  </tr>
+  <% end %>
+</table>
+  
