@@ -1,10 +1,18 @@
 <p id="notice"><%= notice %></p>
 
 <h1>Listing Todo Items</h1>
-
+<!-- # 3. Display the count of completed TodoItems on the index page using
+# a reference by the view – to the member variable deﬁned in the controller class.
+# The grader is looking for the result to be expressed as Number of Completed Todos:
+# anywhere on the page – where # is the number of completed todos.
+# There must be a single space between the : and number. -->
 <table>
   <thead>
     <tr>
+      <th>title</th>
+      <th>Due date</th>
+      <th>Description</th>
+      <th>Completed</th>
       <th colspan="3"></th>
     </tr>
   </thead>
@@ -12,8 +20,12 @@
   <tbody>
     <% @todo_items.each do |todo_item| %>
       <tr>
+        <td><%= todo_item.title %></td>
+        <td><%= todo_item.due_date %></td>
+        <td><%= todo_item.description %></td>
+        <td><%= todo_item.completed %></td>
         <td><%= link_to 'Show', todo_item %></td>
-        <td><%= link_to 'Edit', edit_todo_item_path(todo_item) %></td>
+        <!-- <td><%= link_to 'Edit', edit_todo_item_path(todo_item) %></td> -->
         <td><%= link_to 'Destroy', todo_item, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
@@ -21,5 +33,7 @@
 </table>
 
 <br>
+
+<p> Number of Completed Todos: <%= @number_of_completed_todos %></p>
 
 <%= link_to 'New Todo item', new_todo_item_path %>

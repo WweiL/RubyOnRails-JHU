@@ -18,7 +18,7 @@ class TodoItemsControllerTest < ActionController::TestCase
 
   test "should create todo_item" do
     assert_difference('TodoItem.count') do
-      post :create, todo_item: {  }
+      post :create, todo_item: { : @todo_item., completed: @todo_item.completed, default: @todo_item.default, description: @todo_item.description, due_date: @todo_item.due_date, false: @todo_item.false }
     end
 
     assert_redirected_to todo_item_path(assigns(:todo_item))
@@ -35,7 +35,7 @@ class TodoItemsControllerTest < ActionController::TestCase
   end
 
   test "should update todo_item" do
-    patch :update, id: @todo_item, todo_item: {  }
+    patch :update, id: @todo_item, todo_item: { : @todo_item., completed: @todo_item.completed, default: @todo_item.default, description: @todo_item.description, due_date: @todo_item.due_date, false: @todo_item.false }
     assert_redirected_to todo_item_path(assigns(:todo_item))
   end
 
