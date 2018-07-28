@@ -15,7 +15,7 @@ class Solution
   # using the default.
   def self.mongo_client
     url=ENV['MONGO_URL'] ||= MONGO_URL
-    database=ENV['MONGO_DATABASE'] ||= MONGO_DATABASE 
+    database=ENV['MONGO_DATABASE'] ||= MONGO_DATABASE
     db = Mongo::Client.new(url)
     @@db=db.use(database)
   end
@@ -28,7 +28,7 @@ class Solution
   end
   
   # helper method that will load a file and return a parsed JSON document as a hash
-  def self.load_hash(file_path) 
+  def self.load_hash(file_path)
     file=File.read(file_path)
     JSON.parse(file)
   end
@@ -39,7 +39,7 @@ class Solution
   end
 
   # drop the current contents of the collection and reload from data file
-  def self.reset(file_path) 
+  def self.reset(file_path)
     self.collection.delete_many({})
     hash=self.load_hash(file_path)
     self.collection.insert_many(hash)
@@ -56,15 +56,15 @@ class Solution
   #
 
   def racer_names
-    #place solution here
+    self.class.collection.find.aggregate([{:$project=>{_id: 0, first_name: 1, last_name: 1}}])
   end
 
-  def id_number_map 
-    #place solution here
+  def id_number_map
+    self.class.collection.find.aggregate([{:$project=>{_id: 1, number: 1}}])
   end
 
   def concat_names
-    #place solution here
+    self.class.collection.find.aggregate([{:$project=>{_id: 0, number: 1, name:{:$concat => ["$last_name" , "$first_name"]}}}])
   end
 
   #
@@ -73,26 +73,74 @@ class Solution
   #
 
   def group_times
-    #place solution here
+    self.class.collection.find.aggregate([
+                                          {
+                                            :$group => {
+                                                          :_id => {age: "$group", gender: "$gender"},
+                                                          :runners => {:$sum => 1},
+                                                          :fastest_time => {:$min => "$secs"}
+                                                        }
+                                          }
+                                        ])
   end
 
   def group_last_names
-    #place solution here
+    self.class.collection.find.aggregate([
+                                          {
+                                            :$group => {
+                                                          :_id => {age: "$group", gender: "$gender"},
+                                                          :last_names => {:$push => "$last_name"}
+                                                        }
+                                          }
+                                        ])
   end
 
   def group_last_names_set
-    #place solution here
+    self.class.collection.find.aggregate([
+                                          {
+                                            :$group => {
+                                                          :_id => {age: "$group", gender: "$gender"},
+                                                          :last_names => {:$addToSet => "$last_name"}
+                                                        }
+                                          }
+                                        ])
   end
 
   #
   # Lecture 4: $match
   #
   def groups_faster_than criteria_time
-    #place solution here
+    self.class.collection.find.aggregate([
+        {:$group => {
+                        :_id => {gender: "$gender", age: "$group"},
+                        :runners => {:$sum => 1},
+                        :fastest_time => {:$min => "$secs"}
+                    }
+        },
+        {:$match => {
+                        :fastest_time => {:$lte => criteria_time}
+                    }
+        }
+])
   end
 
   def age_groups_faster_than age_group, criteria_time
-    #place solution here
+    self.class.collection.find.aggregate([
+        {:$match => {
+                        :age => age_group
+                    }
+        },
+        {:$group => {
+                        :_id => {gender: "$gender", age: "$group"},
+                        :runners => {:$sum => 1},
+                        :fastest_time => {:$min => "$secs"}
+                    }
+        },
+        {:$match => {
+                        :fastest_time => {:$lte => criteria_time}
+                    }
+        }
+])
   end
 
 
@@ -100,7 +148,12 @@ class Solution
   # Lecture 5: $unwind
   #
   def avg_family_time last_name
-    #place solution here
+    @coll.find.aggregate([
+        {:$match => { :last_name => last_name }},
+        {:$group => { :_id => "$last_name" ,
+                      :avg_time => {:$avg => "$secs"},
+                      :numbers => {:$push => "$number"}}}
+    ])
   end
   
   def number_goal last_name
